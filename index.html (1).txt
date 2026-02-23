@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jynxzi Cookie Clicker</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+--primary:#ff6b35;--secondary:#f7c59f;--dark:#0a0a0f;
+--card:rgba(255,107,53,0.08);--border:rgba(255,107,53,0.25);
+--glow:rgba(255,107,53,0.4);--text:#f0e6d3;--muted:#8a7a6a;
+--gold:#ffd700;--green:#4ade80;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Rajdhani',sans-serif;background:var(--dark);color:var(--text);overflow:hidden;height:100vh;width:100vw;user-select:none;}
+
+/* ========== BACKGROUNDS ========== */
+#startScreen{
+position:fixed;inset:0;display:flex;flex-direction:column;
+align-items:center;justify-content:center;z-index:1000;
+transition:opacity 0.8s ease;overflow:hidden;
+}
+#startBgLayer{
+position:absolute;inset:0;z-index:0;
+background-size:cover;background-position:center;
+transition:all 0.5s;
+}
+/* Jynxzi default bg — dark gamer aesthetic with orange glow */
+#startBgLayer.jynxzi-bg{
+background:
+radial-gradient(ellipse at 30% 60%,rgba(255,107,53,0.25) 0%,transparent 55%),
+radial-gradient(ellipse at 75% 25%,rgba(247,197,159,0.12) 0%,transparent 45%),
+radial-gradient(ellipse at 60% 80%,rgba(200,68,0,0.15) 0%,transparent 45%),
+linear-gradient(160deg,#0a0508 0%,#110808 30%,#0f0a05 60%,#070508 100%);
+animation:jynxziBG 6s ease-in-out infinite alternate;
+}
+@keyframes jynxziBG{
+0%{filter:brightness(1);}
+50%{filter:brightness(1.08) saturate(1.1);}
+100%{filter:brightness(0.95);}
+}
+/* 9-Tails Naruto bg */
+#startBgLayer.naruto-bg{
+background:
+radial-gradient(ellipse at 50% 40%,rgba(255,80,0,0.45) 0%,transparent 50%),
+radial-gradient(ellipse at 20% 70%,rgba(180,20,0,0.3) 0%,transparent 45%),
+radial-gradient(ellipse at 80% 30%,rgba(255,140,0,0.25) 0%,transparent 40%),
+radial-gradient(ellipse at 50% 100%,rgba(80,0,0,0.6) 0%,transparent 50%),
+linear-gradient(160deg,#0a0000 0%,#1a0300 25%,#2a0600 50%,#150200 75%,#080000 100%);
+animation:narutoBGAnim 2.5s ease-in-out infinite alternate;
+}
+@keyframes narutoBGAnim{
+0%{filter:brightness(1) saturate(1.2);}
+30%{filter:brightness(1.15) saturate(1.5) hue-rotate(5deg);}
+60%{filter:brightness(0.9) saturate(1.3);}
+100%{filter:brightness(1.1) saturate(1.4) hue-rotate(-5deg);}
+}
+/* 9-tails eye pattern overlay */
+#startBgLayer.naruto-bg::after{
+content:'👁️';position:absolute;font-size:300px;
+top:50%;left:50%;transform:translate(-50%,-50%);
+opacity:0.04;animation:eyePulse 3s ease-in-out infinite;
+pointer-events:none;
+}
+@keyframes eyePulse{0%,100%{opacity:0.03;transform:translate(-50%,-50%) scale(1);}50%{opacity:0.07;transform:translate(-50%,-50%) scale(1.05);}}
+/* Russ bg */
+#startBgLayer.russ-bg{
+background:
+radial-gradient(ellipse at 30% 50%,rgba(0,80,255,0.2) 0%,transparent 50%),
+radial-gradient(ellipse at 70% 30%,rgba(0,50,180,0.15) 0%,transparent 40%),
+linear-gradient(160deg,#00001a,#000050,#000030);
+animation:russBGAnim 4s ease-in-out infinite alternate;
+}
+@keyframes russBGAnim{0%{filter:brightness(1);}100%{filter:brightness(1.1) hue-rotate(10deg);}}
+
+/* Jynxzi face grid in bg */
+.jynxzi-face-grid{
+position:absolute;inset:0;display:grid;
+grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(4,1fr);
+opacity:0.03;pointer-events:none;z-index:1;
+}
+.jynxzi-face-grid span{display:flex;align-items:center;justify-content:center;font-size:60px;filter:grayscale(1);}
+
+/* Naruto kanji overlay */
+.naruto-kanji{
+position:absolute;font-size:200px;color:rgba(255,80,0,0.06);
+font-family:'Orbitron',monospace;pointer-events:none;z-index:1;
+animation:kanjiDrift 8s ease-in-out infinite;
+}
+@keyframes kanjiDrift{0%,100%{transform:rotate(-5deg) scale(1);}50%{transform:rotate(5deg) scale(1.05);}}
+
+/* Start content */
+.start-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;}
+.start-title{
+font-family:'Bebas Neue',cursive;font-size:clamp(44px,8vw,105px);letter-spacing:8px;
+background:linear-gradient(180deg,#fff 0%,var(--primary) 50%,#c84400 100%);
+-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+filter:drop-shadow(0 0 40px rgba(255,107,53,0.8));animation:titleFloat 3s ease-in-out infinite;
+text-align:center;line-height:1.05;margin-bottom:6px;white-space:pre-line;
+}
+.naruto-bg~.start-content .start-title{
+background:linear-gradient(180deg,#fff8 0%,#ff4400 40%,#ff0000 70%,#330000 100%);
+-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 0 60px rgba(255,30,0,1));
+}
+@keyframes titleFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.start-subtitle{font-family:'Orbitron',monospace;font-size:clamp(11px,1.5vw,16px);color:var(--secondary);letter-spacing:4px;margin-bottom:20px;opacity:0;transition:opacity 1s;}
+.start-cookie{font-size:90px;cursor:pointer;animation:cookieSpin 8s linear infinite;filter:drop-shadow(0 0 30px rgba(255,107,53,0.6));margin-bottom:18px;display:block;}
+@keyframes cookieSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.name-section{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:14px;opacity:0;transition:opacity 1s;}
+.name-label{font-family:'Orbitron',monospace;font-size:10px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;}
+.name-input{
+background:rgba(255,107,53,0.1);border:1px solid var(--border);color:var(--text);
+font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;padding:9px 22px;
+border-radius:4px;text-align:center;width:260px;outline:none;letter-spacing:4px;transition:all .3s;
+user-select:text;
+}
+.name-input:focus{border-color:var(--primary);background:rgba(255,107,53,0.2);box-shadow:0 0 20px rgba(255,107,53,0.3);}
+.start-btn{
+background:linear-gradient(135deg,var(--primary),#c84400);color:white;border:none;
+padding:13px 55px;font-family:'Bebas Neue',cursive;font-size:26px;letter-spacing:4px;
+cursor:pointer;border-radius:4px;overflow:hidden;transition:all .3s;box-shadow:0 0 30px rgba(255,107,53,0.4);
+}
+.start-btn:hover{transform:translateY(-3px);box-shadow:0 8px 40px rgba(255,107,53,0.7);}
+.naruto-particle{position:absolute;border-radius:50%;pointer-events:none;animation:nPart 3s ease-out forwards;}
+@keyframes nPart{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(0) translate(var(--tx),var(--ty))}}
+
+/* ========== MUSIC CONTROL ========== */
+#musicControl{
+position:fixed;bottom:14px;right:14px;z-index:9999;display:none;
+align-items:center;gap:8px;background:rgba(0,0,0,0.9);border:1px solid var(--border);
+padding:6px 14px;border-radius:30px;backdrop-filter:blur(10px);transition:all .3s;
+}
+#musicControl:hover{border-color:var(--primary);}
+.music-icon{font-size:15px;}
+.music-icon.playing{animation:mPulse 0.8s ease-in-out infinite;}
+@keyframes mPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+.music-label{font-family:'Orbitron',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;}
+#volSlider{width:50px;accent-color:var(--primary);cursor:pointer;}
+#musicToggleBtn{background:transparent;border:none;color:var(--text);cursor:pointer;font-size:13px;padding:2px 6px;border-radius:3px;transition:all .2s;}
+#musicToggleBtn:hover{color:var(--primary);}
+
+/* ========== GAME SCREEN ========== */
+#gameScreen{display:none;height:100vh;width:100vw;flex-direction:column;position:relative;}
+#gameScreen.active{display:flex;}
+#gameBgOverlay{
+position:absolute;inset:0;z-index:0;pointer-events:none;
+background-size:cover;background-position:center;
+}
+#gameBgOverlay.jynxzi-game-bg{
+background:
+radial-gradient(ellipse at 15% 50%,rgba(255,107,53,0.08) 0%,transparent 50%),
+radial-gradient(ellipse at 85% 20%,rgba(247,197,159,0.05) 0%,transparent 40%),
+linear-gradient(160deg,#0a0508,#110808,#0a0508);
+}
+#gameBgOverlay.naruto-game-bg{
+background:
+radial-gradient(ellipse at 50% 50%,rgba(255,50,0,0.07) 0%,transparent 60%),
+linear-gradient(160deg,#0a0000,#150200,#0a0000);
+animation:narutoGameBG 4s ease-in-out infinite alternate;
+}
+@keyframes narutoGameBG{0%{filter:brightness(1);}100%{filter:brightness(1.06) saturate(1.1);}}
+
+.game-header{
+background:rgba(0,0,0,0.88);border-bottom:1px solid var(--border);
+padding:6px 16px;display:flex;align-items:center;justify-content:space-between;
+backdrop-filter:blur(12px);z-index:100;flex-shrink:0;position:relative;
+}
+.header-title{font-family:'Bebas Neue',cursive;font-size:20px;color:var(--primary);letter-spacing:4px;}
+.header-stats{display:flex;gap:16px;}
+.stat-item{text-align:center;}
+.stat-label{font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;display:block;}
+.stat-value{font-family:'Orbitron',monospace;font-size:13px;color:var(--gold);font-weight:700;}
+.header-right{display:flex;gap:6px;align-items:center;}
+.hdr-btn{
+background:transparent;border:1px solid var(--border);color:var(--text);
+padding:4px 11px;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;
+cursor:pointer;border-radius:3px;transition:all .2s;letter-spacing:1px;
+}
+.hdr-btn:hover{border-color:var(--primary);color:var(--primary);}
+.hdr-btn.save:hover{border-color:var(--green);color:var(--green);}
+.game-layout{display:flex;flex:1;overflow:hidden;position:relative;z-index:1;}
+
+/* ========== CLICK AREA ========== */
+.click-area{
+width:320px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;
+justify-content:center;padding:14px;border-right:1px solid var(--border);
+background:radial-gradient(ellipse at center,rgba(255,107,53,0.06) 0%,transparent 70%);
+position:relative;overflow:hidden;
+}
+.click-area::before{
+content:'';position:absolute;inset:0;
+background:radial-gradient(circle at 50% 50%,rgba(255,107,53,0.03) 0%,transparent 60%);
+animation:areaPulse 2s ease-in-out infinite;
+}
+@keyframes areaPulse{0%,100%{opacity:.5}50%{opacity:1}}
+.cookie-count{text-align:center;margin-bottom:6px;}
+.cookie-number{font-family:'Orbitron',monospace;font-size:clamp(16px,2vw,24px);color:var(--gold);font-weight:900;display:block;text-shadow:0 0 20px rgba(255,215,0,0.5);}
+.cookie-label{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
+.cps-display{font-family:'Orbitron',monospace;font-size:10px;color:var(--primary);margin-bottom:8px;}
+.big-cookie{
+font-size:175px;cursor:pointer;user-select:none;position:relative;z-index:1;
+transition:transform .08s;filter:drop-shadow(0 0 25px rgba(255,107,53,0.35));
+animation:cookieIdle 4s ease-in-out infinite;line-height:1;
+}
+.big-cookie:hover{filter:drop-shadow(0 0 55px rgba(255,107,53,0.9));}
+.big-cookie.clicked{transform:scale(0.83)!important;filter:drop-shadow(0 0 90px rgba(255,107,53,1)) brightness(1.6)!important;animation:none!important;}
+@keyframes cookieIdle{0%,100%{transform:scale(1) rotate(0deg)}25%{transform:scale(1.03) rotate(1.5deg)}75%{transform:scale(.98) rotate(-1.5deg)}}
+.click-ripple{position:absolute;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,rgba(255,107,53,.8),transparent);pointer-events:none;animation:rippleOut .6s ease-out forwards;transform:translate(-50%,-50%);}
+@keyframes rippleOut{0%{width:20px;height:20px;opacity:1}100%{width:160px;height:160px;opacity:0}}
+.float-text{position:absolute;font-family:'Orbitron',monospace;font-size:14px;font-weight:700;color:var(--gold);pointer-events:none;animation:floatUp 1s ease-out forwards;text-shadow:0 0 10px rgba(255,215,0,.8);z-index:999;}
+@keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1)}50%{opacity:1;transform:translateY(-28px) scale(1.2)}100%{opacity:0;transform:translateY(-65px) scale(.8)}}
+.multiplier-badge{background:linear-gradient(135deg,#ff0000,#ff4400);color:white;padding:3px 10px;border-radius:20px;font-family:'Bebas Neue',cursive;font-size:13px;letter-spacing:2px;margin-top:6px;animation:badgePulse 1s ease-in-out infinite;display:none;}
+@keyframes badgePulse{0%,100%{box-shadow:0 0 10px rgba(255,0,0,.5)}50%{box-shadow:0 0 30px rgba(255,0,0,.9)}}
+
+/* ========== GOLDEN COOKIE ========== */
+.golden-cookie{
+position:absolute;font-size:60px;cursor:pointer;user-select:none;z-index:500;
+filter:drop-shadow(0 0 18px gold) drop-shadow(0 0 35px orange);
+animation:goldenPulse .9s ease-in-out infinite;
+transition:transform 0.1s;
+}
+.golden-cookie:hover{transform:scale(1.25)!important;filter:drop-shadow(0 0 40px gold) drop-shadow(0 0 80px gold) brightness(1.4);}
+@keyframes goldenPulse{
+0%,100%{filter:drop-shadow(0 0 18px gold) drop-shadow(0 0 35px orange);}
+50%{filter:drop-shadow(0 0 40px gold) drop-shadow(0 0 80px gold) brightness(1.4);}
+}
+.golden-cookie-timer{
+position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);
+width:50px;height:4px;background:rgba(0,0,0,0.5);border-radius:2px;overflow:hidden;
+}
+.golden-cookie-timer-fill{height:100%;background:linear-gradient(90deg,var(--gold),orange);border-radius:2px;transition:width 0.1s linear;}
+
+/* ========== TABS PANEL ========== */
+.tabs-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.tab-bar{display:flex;background:rgba(0,0,0,0.65);border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;scrollbar-width:none;}
+.tab-bar::-webkit-scrollbar{display:none;}
+.tab-btn{
+background:transparent;border:none;color:var(--muted);padding:12px 18px;
+font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;
+text-transform:uppercase;cursor:pointer;transition:all .3s;position:relative;white-space:nowrap;flex-shrink:0;
+}
+.tab-btn::after{content:'';position:absolute;bottom:0;left:50%;right:50%;height:2px;background:var(--primary);transition:all .3s;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--primary);}
+.tab-btn.active::after{left:0;right:0;}
+.tab-btn.naruto-tab{color:#ff4400;text-shadow:0 0 10px rgba(255,68,0,0.5);}
+.tab-btn.naruto-tab.active{color:#ff6600;}
+.tab-btn.naruto-tab::after{background:#ff2200;}
+.tab-content{display:none;flex:1;overflow-y:auto;padding:14px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.tab-content.active{display:block;}
+.tab-content::-webkit-scrollbar{width:4px;}
+.tab-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+/* ========== BUILDINGS ========== */
+.section-title{font-family:'Bebas Neue',cursive;font-size:26px;color:var(--primary);letter-spacing:4px;margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px;}
+.building-card{
+background:var(--card);border:1px solid var(--border);border-radius:6px;
+padding:12px 14px;margin-bottom:7px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;
+}
+.building-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,107,53,0.06),transparent);opacity:0;transition:opacity .3s;}
+.building-card:hover::before{opacity:1;}
+.building-card:hover{border-color:rgba(255,107,53,0.55);transform:translateX(3px);}
+.building-card.can-afford{border-color:rgba(255,107,53,0.6);box-shadow:0 0 12px rgba(255,107,53,0.18);}
+.building-card.can-afford:hover{box-shadow:0 0 22px rgba(255,107,53,0.38);transform:translateX(5px);}
+.building-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.building-name{font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:7px;}
+.building-icon{font-size:18px;}
+.building-count{font-family:'Orbitron',monospace;font-size:20px;color:var(--primary);font-weight:700;margin-left:14px;}
+.building-desc{font-size:11px;color:var(--muted);margin-bottom:5px;line-height:1.4;}
+.building-cost{font-family:'Orbitron',monospace;font-size:12px;color:var(--gold);}
+.building-cps{font-size:10px;color:var(--green);margin-left:8px;}
+.progress-bar-wrap{background:rgba(0,0,0,0.35);border-radius:2px;height:3px;margin-top:6px;overflow:hidden;}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--gold));border-radius:2px;transition:width .4s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden;}
+.progress-bar-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);animation:shimmer 1.5s infinite;}
+@keyframes shimmer{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+
+/* ========== UPGRADES ========== */
+.upgrade-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:9px;}
+.upgrade-card{
+background:var(--card);border:1px solid var(--border);border-radius:6px;
+padding:13px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;
+}
+.upgrade-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--primary),var(--gold));transform:scaleX(0);transform-origin:left;transition:transform .3s;}
+.upgrade-card:hover::before{transform:scaleX(1);}
+.upgrade-card:hover{border-color:rgba(255,107,53,0.5);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.4);}
+.upgrade-card.can-afford{border-color:rgba(255,215,0,0.45);box-shadow:0 0 15px rgba(255,215,0,0.12);}
+.upgrade-card.purchased{opacity:0.5;cursor:default;border-color:rgba(74,222,128,0.3);}
+.upgrade-card.purchased::before{transform:scaleX(1);background:var(--green);}
+.upgrade-card.locked-upgrade{opacity:0.35;cursor:not-allowed;pointer-events:none;}
+.upgrade-card.naruto-card{border-color:rgba(255,68,0,0.45);background:rgba(255,50,0,0.09);}
+.upgrade-card.naruto-card:hover{box-shadow:0 6px 30px rgba(255,68,0,0.3);}
+.upgrade-name{font-size:15px;font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:7px;}
+.upgrade-desc{font-size:11px;color:var(--muted);margin-bottom:7px;line-height:1.5;}
+.upgrade-cost{font-family:'Orbitron',monospace;font-size:12px;color:var(--gold);}
+.upgrade-effect{font-size:10px;color:var(--green);margin-top:4px;}
+.upgrade-progress-wrap{background:rgba(0,0,0,0.35);border-radius:2px;height:3px;margin-top:7px;overflow:hidden;}
+.upgrade-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),#ffaa00);border-radius:2px;transition:width .5s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden;}
+.upgrade-progress-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.5),transparent);animation:shimmer 1.2s infinite;}
+.upgrade-lock-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);font-size:28px;border-radius:6px;pointer-events:none;}
+
+/* ========== PRESTIGE SHOP ========== */
+.prestige-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:10px;transition:all .3s;}
+.prestige-card:hover{border-color:rgba(168,85,247,0.5);box-shadow:0 0 20px rgba(168,85,247,0.15);}
+.prestige-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.prestige-name{font-family:'Bebas Neue',cursive;font-size:22px;color:#c084fc;letter-spacing:3px;}
+.prestige-owned{font-family:'Orbitron',monospace;font-size:12px;color:var(--gold);background:rgba(255,215,0,0.1);padding:3px 10px;border-radius:20px;}
+.prestige-desc{color:var(--muted);font-size:13px;margin-bottom:8px;line-height:1.5;}
+.prestige-effect{background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:4px;padding:8px;font-size:12px;color:#c084fc;margin-bottom:10px;}
+.prestige-cost{font-family:'Orbitron',monospace;font-size:13px;color:var(--gold);margin-bottom:10px;}
+.prestige-btn{background:linear-gradient(135deg,#7c3aed,#5b21b6);color:white;border:none;padding:8px 24px;font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:3px;cursor:pointer;border-radius:4px;transition:all .3s;}
+.prestige-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 20px rgba(124,58,237,0.5);}
+.prestige-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.prestige-currency{background:rgba(168,85,247,0.1);border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:16px;font-family:'Orbitron',monospace;font-size:13px;color:#c084fc;display:flex;justify-content:space-between;align-items:center;}
+
+/* ========== REBIRTHS ========== */
+.rebirth-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:10px;transition:all .3s;}
+.rebirth-card:hover{border-color:rgba(255,107,53,0.5);}
+.rebirth-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.rebirth-name{font-family:'Bebas Neue',cursive;font-size:22px;color:var(--primary);letter-spacing:3px;}
+.rebirth-count{font-family:'Orbitron',monospace;font-size:12px;color:var(--gold);background:rgba(255,215,0,0.1);padding:3px 10px;border-radius:20px;}
+.rebirth-desc{color:var(--muted);font-size:13px;margin-bottom:10px;line-height:1.5;}
+.rebirth-effect{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);border-radius:4px;padding:8px;font-size:12px;color:var(--green);margin-bottom:10px;}
+.rebirth-cost{font-family:'Orbitron',monospace;font-size:13px;color:var(--gold);margin-bottom:10px;}
+.rebirth-btn{background:linear-gradient(135deg,var(--primary),#c84400);color:white;border:none;padding:8px 26px;font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:3px;cursor:pointer;border-radius:4px;transition:all .3s;}
+.rebirth-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,107,53,0.5);}
+.rebirth-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.rebirth-bonus-display{background:rgba(255,107,53,0.1);border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:16px;font-family:'Orbitron',monospace;font-size:13px;color:var(--primary);display:flex;justify-content:space-between;}
+
+/* ========== ACHIEVEMENTS ========== */
+.ach-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.ach-count{font-family:'Orbitron',monospace;font-size:11px;color:var(--gold);}
+.achievement-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:9px;}
+.achievement-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:12px;transition:all .3s;position:relative;overflow:hidden;}
+.achievement-card.unlocked{border-color:rgba(255,215,0,0.4);background:rgba(255,215,0,0.05);}
+.achievement-card.unlocked::after{content:'✓';position:absolute;top:7px;right:8px;color:var(--gold);font-size:14px;font-weight:700;}
+.achievement-card:hover{transform:translateY(-2px);}
+.achievement-icon{font-size:24px;margin-bottom:6px;}
+.achievement-name{font-size:14px;font-weight:700;margin-bottom:3px;}
+.achievement-desc{font-size:11px;color:var(--muted);line-height:1.4;}
+.achievement-req{font-size:10px;color:var(--primary);margin-top:5px;font-family:'Orbitron',monospace;}
+
+/* ========== SETTINGS ========== */
+.settings-section{margin-bottom:20px;}
+.settings-section-title{font-family:'Bebas Neue',cursive;font-size:20px;color:var(--primary);letter-spacing:3px;margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:5px;}
+.setting-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:6px;margin-bottom:7px;}
+.setting-label{font-size:14px;font-weight:600;}
+.setting-desc{font-size:11px;color:var(--muted);margin-top:2px;}
+.setting-control{display:flex;gap:8px;align-items:center;}
+.toggle-btn{background:rgba(255,107,53,0.2);border:1px solid var(--border);color:var(--text);padding:5px 14px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;cursor:pointer;border-radius:3px;transition:all .2s;letter-spacing:1px;}
+.toggle-btn:hover{border-color:var(--primary);color:var(--primary);}
+.toggle-btn.active-setting{background:rgba(255,107,53,0.3);border-color:var(--primary);color:var(--primary);}
+.danger-btn{background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.4);color:#f87171;padding:7px 18px;font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;cursor:pointer;border-radius:4px;transition:all .3s;}
+.danger-btn:hover{background:rgba(220,38,38,0.3);box-shadow:0 0 20px rgba(220,38,38,0.3);}
+.vol-control{display:flex;align-items:center;gap:8px;}
+.vol-control input{width:80px;accent-color:var(--primary);}
+.vol-control label{font-size:11px;color:var(--muted);}
+
+/* ========== TOASTS ========== */
+#toastContainer{position:fixed;top:70px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:7px;pointer-events:none;}
+.toast{background:rgba(10,10,15,0.96);border:1px solid var(--primary);border-radius:6px;padding:10px 16px;min-width:220px;max-width:300px;box-shadow:0 4px 20px rgba(0,0,0,0.5);animation:toastIn .4s cubic-bezier(0.34,1.56,0.64,1) both;backdrop-filter:blur(10px);}
+.toast.t-gold{border-color:var(--gold);box-shadow:0 4px 20px rgba(255,215,0,0.3);}
+.toast.t-green{border-color:var(--green);box-shadow:0 4px 20px rgba(74,222,128,0.3);}
+.toast.t-red{border-color:#ff2200;box-shadow:0 4px 20px rgba(255,34,0,0.3);}
+.toast.t-golden{border-color:gold;box-shadow:0 4px 30px rgba(255,215,0,0.6);}
+.toast.hiding{animation:toastOut .3s ease forwards;}
+@keyframes toastIn{from{opacity:0;transform:translateX(30px) scale(0.9)}to{opacity:1;transform:translateX(0) scale(1)}}
+@keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(30px)}}
+.toast-title{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.toast-body{font-size:11px;color:var(--muted);}
+
+/* REBIRTH FLASH */
+.rebirth-flash{position:fixed;inset:0;background:white;z-index:9998;pointer-events:none;animation:rFlash .8s ease forwards;}
+@keyframes rFlash{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
+
+/* GOLDEN NOTIF */
+.golden-notif{
+position:fixed;bottom:60px;left:50%;transform:translateX(-50%);
+background:linear-gradient(135deg,rgba(30,20,0,0.95),rgba(50,30,0,0.95));
+border:2px solid gold;border-radius:8px;padding:10px 24px;
+font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:3px;
+color:gold;text-shadow:0 0 10px gold;z-index:9000;
+animation:goldenNotifIn .5s cubic-bezier(0.34,1.56,0.64,1) both;
+box-shadow:0 0 30px rgba(255,215,0,0.4);pointer-events:none;
+}
+@keyframes goldenNotifIn{from{opacity:0;transform:translateX(-50%) translateY(20px) scale(0.8)}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- ===== START SCREEN ===== -->
+<div id="startScreen">
+<div id="startBgLayer" class="jynxzi-bg">
+<div class="jynxzi-face-grid" id="faceGrid"></div>
+</div>
+<div class="start-content">
+<div class="start-title" id="startTitle">JYNXZI&#10;COOKIE CLICKER</div>
+<div class="start-subtitle" style="opacity:0;transition:opacity 1s;">THE ULTIMATE STREAMING EMPIRE</div>
+<div class="start-cookie" id="startCookie">🍪</div>
+<div class="name-section" style="opacity:0;transition:opacity 1s;display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:14px;">
+<div class="name-label">Enter Your Name</div>
+<input type="text" class="name-input" id="playerName" maxlength="20" placeholder="PLAYER" autocomplete="off"/>
+</div>
+<button class="start-btn" id="startBtn">START CLICKING</button>
+</div>
+</div>
+
+<!-- ===== GAME SCREEN ===== -->
+<div id="gameScreen">
+<div id="gameBgOverlay" class="jynxzi-game-bg"></div>
+
+<div class="game-header">
+<div class="header-title">🍪 JYNXZI CLICKER</div>
+<div class="header-stats">
+<div class="stat-item"><span class="stat-label">Cookies</span><span class="stat-value" id="cookieDisplay">0</span></div>
+<div class="stat-item"><span class="stat-label">Per Sec</span><span class="stat-value" id="cpsDisplay">0</span></div>
+<div class="stat-item"><span class="stat-label">All Time</span><span class="stat-value" id="allTimeDisplay">0</span></div>
+<div class="stat-item"><span class="stat-label">Prestige</span><span class="stat-value" id="prestigeDisplay">0✨</span></div>
+<div class="stat-item"><span class="stat-label">Rebirths</span><span class="stat-value" id="rebirthDisplay">0</span></div>
+</div>
+<div class="header-right">
+<button class="hdr-btn save" onclick="saveGame()">💾 SAVE</button>
+<button class="hdr-btn" onclick="goToMenu()">⬅ MENU</button>
+</div>
+</div>
+
+<div class="game-layout">
+<!-- CLICK AREA -->
+<div class="click-area" id="clickArea">
+<div class="cookie-count">
+<span class="cookie-number" id="mainCookieNum">0</span>
+<span class="cookie-label">Jynxzi Cookies</span>
+</div>
+<div class="cps-display" id="mainCPS">0 / second</div>
+<div class="big-cookie" id="bigCookie" onclick="clickCookie(event)">🍪</div>
+<div class="multiplier-badge" id="multiBadge">🦊 3X NARUTO MODE</div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-panel">
+<div class="tab-bar" id="tabBar">
+<button class="tab-btn active" onclick="switchTab('buildings',this)">🏠 Buildings</button>
+<button class="tab-btn" onclick="switchTab('upgrades',this)">⬆ Upgrades</button>
+<button class="tab-btn" onclick="switchTab('prestige',this)">✨ Prestige</button>
+<button class="tab-btn" onclick="switchTab('rebirths',this)">🔄 Rebirths</button>
+<button class="tab-btn" onclick="switchTab('achievements',this)">🏆 Achievements</button>
+<button class="tab-btn" onclick="switchTab('settings',this)">⚙️ Settings</button>
+</div>
+
+<div class="tab-content active" id="tab-buildings">
+<div class="section-title">BUILDINGS</div>
+<div id="buildingsList"></div>
+</div>
+
+<div class="tab-content" id="tab-upgrades">
+<div class="section-title">UPGRADES</div>
+<div class="upgrade-grid" id="upgradesList"></div>
+</div>
+
+<div class="tab-content" id="tab-prestige">
+<div class="section-title">PRESTIGE SHOP</div>
+<div class="prestige-currency">
+<span>✨ Prestige Points</span>
+<span id="prestigePointsDisplay">0 PP</span>
+</div>
+<div id="prestigeList"></div>
+</div>
+
+<div class="tab-content" id="tab-rebirths">
+<div class="section-title">REBIRTHS</div>
+<div class="rebirth-bonus-display">
+<span>Rebirth Bonus</span>
+<span id="rebirthBonusDisplay">1.0x</span>
+</div>
+<div id="rebirthList"></div>
+</div>
+
+<div class="tab-content" id="tab-achievements">
+<div class="ach-header">
+<div class="section-title" style="margin-bottom:0;border:none;padding:0">ACHIEVEMENTS</div>
+<div class="ach-count" id="achCount">0/0 unlocked</div>
+</div>
+<div class="achievement-grid" id="achievementsList"></div>
+</div>
+
+<div class="tab-content" id="tab-settings">
+<div class="section-title">SETTINGS</div>
+<div class="settings-section">
+<div class="settings-section-title">AUDIO</div>
+<div class="setting-row">
+<div><div class="setting-label">🎵 Background Music</div><div class="setting-desc">Action-packed background music</div></div>
+<div class="setting-control">
+<button class="toggle-btn" id="musicToggle" onclick="toggleMusic()">ON</button>
+<div class="vol-control">
+<label>VOL</label>
+<input type="range" min="0" max="1" step="0.05" value="0.4" id="musicVol" oninput="setMusicVol(this.value)">
+</div>
+</div>
+</div>
+<div class="setting-row">
+<div><div class="setting-label">🔊 Sound Effects</div><div class="setting-desc">Click and purchase sounds</div></div>
+<div class="setting-control">
+<button class="toggle-btn active-setting" id="sfxToggle" onclick="toggleSFX()">ON</button>
+<div class="vol-control">
+<label>VOL</label>
+<input type="range" min="0" max="1" step="0.05" value="0.5" id="sfxVol" oninput="setSFXVol(this.value)">
+</div>
+</div>
+</div>
+</div>
+<div class="settings-section">
+<div class="settings-section-title">GAMEPLAY</div>
+<div class="setting-row">
+<div><div class="setting-label">💾 Auto-Save</div><div class="setting-desc">Saves every 30 seconds automatically</div></div>
+<div class="setting-control"><button class="toggle-btn active-setting" id="autoSaveToggle" onclick="toggleAutoSave()">ON</button></div>
+</div>
+<div class="setting-row">
+<div><div class="setting-label">⌨️ Enter Key Clicking</div><div class="setting-desc">Hold Enter to auto-click at 50ms</div></div>
+<div class="setting-control"><button class="toggle-btn active-setting" id="enterToggle" onclick="toggleEnter()">ON</button></div>
+</div>
+</div>
+<div class="settings-section">
+<div class="settings-section-title">DATA</div>
+<div class="setting-row">
+<div><div class="setting-label">🗑️ Reset Progress</div><div class="setting-desc">Permanently delete all save data</div></div>
+<div class="setting-control"><button class="danger-btn" onclick="resetProgress()">RESET ALL DATA</button></div>
+</div>
+<div class="setting-row">
+<div><div class="setting-label">📤 Export Save</div><div class="setting-desc">Copy save data to clipboard</div></div>
+<div class="setting-control"><button class="toggle-btn" onclick="exportSave()">EXPORT</button></div>
+</div>
+<div class="setting-row">
+<div><div class="setting-label">📥 Import Save</div><div class="setting-desc">Paste previously exported save</div></div>
+<div class="setting-control"><button class="toggle-btn" onclick="importSave()">IMPORT</button></div>
+</div>
+</div>
+<div class="settings-section">
+<div class="settings-section-title">PLAYER</div>
+<div class="setting-row">
+<div><div class="setting-label">👤 Current Name</div><div class="setting-desc" id="settingNameDisplay">-</div></div>
+</div>
+<div class="setting-row">
+<div><div class="setting-label">📊 Stats</div><div class="setting-desc" id="settingStats">-</div></div>
+</div>
+</div>
+</div>
+
+<div class="tab-content" id="tab-naruto">
+<div class="section-title" style="color:#ff4400;text-shadow:0 0 20px rgba(255,68,0,0.6);">🦊 NARUTO UPGRADES</div>
+<p style="color:#ff6600;font-size:12px;margin-bottom:14px;font-style:italic;">Secret jutsu upgrades. One use only. Astronomically expensive.</p>
+<div class="upgrade-grid" id="narutoList"></div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="toastContainer"></div>
+<div id="musicControl">
+<span class="music-icon" id="musicIcon">🎵</span>
+<span class="music-label" id="musicLabel">MUSIC</span>
+<button id="musicToggleBtn" onclick="toggleMusic()">⏸</button>
+<input type="range" id="volSlider" min="0" max="1" step="0.05" value="0.4" oninput="setMusicVol(this.value)">
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const BUILDINGS=[
+{id:'b0', name:'Stream Viewer', icon:'👀', baseCost:15, baseCps:0.1, desc:'A loyal fan watches every stream, generating tiny cookie crumbs.'},
+{id:'b1', name:'Chat Spammer', icon:'💬', baseCost:100, baseCps:0.5, desc:'PogChamp PogChamp PogChamp. Chat never stops, neither does the income.'},
+{id:'b2', name:'Clip Creator', icon:'✂️', baseCost:500, baseCps:2, desc:'Viral clips spread Jynxzi content across every corner of the internet.'},
+{id:'b3', name:'Hype Train', icon:'🚂', baseCost:2000, baseCps:8, desc:'The Twitch hype train roars at level 5. Subs pour in like cookies.'},
+{id:'b4', name:'Sub Army', icon:'🎖️', baseCost:8000, baseCps:25, desc:'An elite squad of Tier 3 subscribers funding your cookie empire.'},
+{id:'b5', name:'Merch Store', icon:'👕', baseCost:25000, baseCps:70, desc:'Hoodies, mousepads, mugs. The merch sells itself now.'},
+{id:'b6', name:'Tournament Win', icon:'🏆', baseCost:80000, baseCps:180, desc:'Another trophy, another massive prize pool. Cookie rain incoming.'},
+{id:'b7', name:'Brand Deal Factory', icon:'💼', baseCost:250000, baseCps:450, desc:'Fortune 500 companies lining up for a Jynxzi shoutout.'},
+{id:'b8', name:'Collab Studio', icon:'🎙️', baseCost:750000, baseCps:1000, desc:'Streaming with the biggest names. Each collab triples the cookies.'},
+{id:'b9', name:'Content Empire', icon:'📺', baseCost:2000000, baseCps:2500, desc:'YouTube, TikTok, Twitch, Instagram. Every platform. Every minute.'},
+{id:'b10',name:'Gaming House', icon:'🏠', baseCost:6000000, baseCps:6000, desc:'A full mansion of content creators grinding around the clock.'},
+{id:'b11',name:'Esports Org', icon:'🎮', baseCost:15000000, baseCps:14000, desc:'Jynxzi owns his own esports organization. Championships equal cookies.'},
+{id:'b12',name:'Pro League', icon:'⚡', baseCost:40000000, baseCps:30000, desc:'Dominating global pro leagues. Cookie printers run 24/7.'},
+{id:'b13',name:'Media Company', icon:'📡', baseCost:100000000, baseCps:70000, desc:'A full-scale media empire. The face of gaming worldwide.'},
+{id:'b14',name:'Jynxzi Universe', icon:'🌌', baseCost:500000000, baseCps:200000,desc:'An entire pocket universe powered by pure Jynxzi energy. Infinite cookies.'},
+{id:'b15',name:'Cookie Dimension', icon:'🌀', baseCost:2000000000,baseCps:600000,desc:'A dimensional rift where cookies flow from an alternate reality nonstop.'},
+{id:'b16',name:'Time Stream', icon:'⏳', baseCost:8000000000,baseCps:1500000,desc:'Jynxzi streams across multiple timelines simultaneously. Infinite past, infinite cookies.'},
+{id:'b17',name:'Cosmic Streamer', icon:'✨', baseCost:30000000000,baseCps:5000000,desc:'Ascended beyond mortal streaming. The cosmos watches. The cookies are endless.'},
+];
+
+const UPGRADES=[
+{id:'u0', name:'Pog Clicker', icon:'🖱️', cost:100, effect:'Click power x2', mult:2, type:'click', desc:'Your clicking is certified PogChamp. Chat goes wild.'},
+{id:'u1', name:'W Rizz', icon:'😎', cost:1000, effect:'All output x1.5', mult:1.5, type:'all', desc:'Pure rizz passively boosts every cookie machine you own.'},
+{id:'u2', name:'Juicer Mode', icon:'💪', cost:5000, effect:'Click power x3', mult:3, type:'click', desc:'Maximum effort. Every click could qualify for a highlight reel.'},
+{id:'u3', name:'R6 God Mode', icon:'🎯', cost:20000, effect:'All output x2', mult:2, type:'all', desc:'Rainbow Six God transcends. Double production across the board.'},
+{id:'u4', name:'Sigma Grindset', icon:'📈', cost:80000, effect:'Click power x5', mult:5, type:'click', desc:'Rise and grind. Never stop. The sigma never rests.'},
+{id:'u5', name:'Among Us Tactics', icon:'🔴', cost:300000, effect:'All output x3', mult:3, type:'all', desc:'Sus production strategies triple your yield. Very sus.'},
+{id:'u6', name:'W Only Mentality', icon:'🏅', cost:1200000, effect:'Click power x8', mult:8, type:'click', desc:'Only Ws. No Ls. Your clicks hit like a champion.'},
+{id:'u7', name:'Chat Manipulation', icon:'🤝', cost:5000000, effect:'All output x4', mult:4, type:'all', desc:'Jynxzi subtly influences chat. Production multiplied by fan love.'},
+{id:'u8', name:'Ranked Rush', icon:'🏃', cost:20000000, effect:'Click power x15', mult:15, type:'click', desc:'Rushing ranked like your life depends on it. Clicks per second: insane.'},
+{id:'u9', name:'Jynxzi Aura', icon:'🌟', cost:80000000, effect:'All output x6', mult:6, type:'all', desc:'The aura is unmatched. Cookies radiate naturally from his presence.'},
+{id:'u10',name:'Cookie Rifle', icon:'🍪', cost:250000000, effect:'Click power x25', mult:25, type:'click', desc:'A rifle that shoots pure cookie energy with every click.'},
+{id:'u11',name:'Infinite Rizz', icon:'💫', cost:1000000000,effect:'All output x10', mult:10, type:'all', desc:'Rizz so powerful it bends the laws of cookie physics.'},
+];
+
+const NARUTO_UPGRADES=[
+{id:'n0',name:'Shadow Clone Jutsu', icon:'🟡',cost:10000000, effect:'Click x10', mult:10, type:'click',desc:'Thousands of clones, all clicking simultaneously. Leaf Village approved.'},
+{id:'n1',name:'Rasengan Storm', icon:'🌀',cost:50000000, effect:'All x5', mult:5, type:'all', desc:'A spiraling sphere of chakra-cookie energy powers all production.'},
+{id:'n2',name:'Sage Mode', icon:'🐸',cost:200000000, effect:'All x10', mult:10, type:'all', desc:'Drawing from nature\'s energy itself. Production reaches divine levels.'},
+{id:'n3',name:'Nine-Tails Cloak', icon:'🦊',cost:750000000, effect:'Click x20', mult:20, type:'click',desc:'Kurama lends his power. Every click shakes the ground.'},
+{id:'n4',name:'Infinite Tsukuyomi', icon:'👁️', cost:2000000000, effect:'All x25', mult:25, type:'all', desc:'Reality bends. Cookies from every dimension flow into yours.'},
+{id:'n5',name:'Six Paths Power', icon:'☯️', cost:8000000000, effect:'All x50', mult:50, type:'all', desc:'The power of the Six Paths Sage. Hagoromo himself grants you cookies beyond counting.'},
+{id:'n6',name:'Baryon Mode', icon:'⚛️', cost:30000000000,effect:'Click x100', mult:100,type:'click',desc:'Consuming life force for god-level clicking power. The rarest and most dangerous jutsu.'},
+];
+
+const PRESTIGE_UPGRADES=[
+{id:'p0',name:'Eternal Stream', icon:'♾️', cost:1, effect:'+25% CPS permanently per rebirth', desc:'Each time you rebirth, you gain an additional 25% passive production bonus that persists forever.'},
+{id:'p1',name:'Click Legacy', icon:'👑', cost:2, effect:'Start each run with 100 cookies', desc:'A head start is all you need. Each new run begins with 100 cookies already in your jar.'},
+{id:'p2',name:'Soul of Jynxzi', icon:'🔥', cost:3, effect:'Golden cookies appear 2x as often', desc:'The essence of Jynxzi makes fortune smile upon you more frequently.'},
+{id:'p3',name:'W Legacy', icon:'🏆', cost:5, effect:'All production x2 (permanent)', desc:'A permanent doubling of everything. The W keeps paying dividends through every rebirth.'},
+{id:'p4',name:'Time Bender', icon:'⏰', cost:8, effect:'Offline progress x3', desc:'Time bends in your favor. You earn 3x as many cookies while offline.'},
+{id:'p5',name:'Sigma Ascend', icon:'💎', cost:12, effect:'Unlock a hidden 4th rebirth tier', desc:'True sigma energy. A secret tier of rebirth becomes available, with the ultimate bonus.'},
+];
+
+const REBIRTHS=[
+{id:'r0',name:'First Awakening', cost:1000000, desc:'Reset your empire but keep earned wisdom. Your next run will be far stronger.',effect:'+50% permanent multiplier. Buildings reset. Upgrades kept.',mult:1.5, keepUp:true, prestigePts:1},
+{id:'r1',name:'Streamer Reborn', cost:10000000, desc:'Proven yourself. Start fresh with enhanced passive income.',effect:'+100% multiplier. All buildings & upgrades reset.',mult:2.0,keepUp:false,prestigePts:2},
+{id:'r2',name:'Sigma Cycle', cost:100000000, desc:'Enter the sigma cycle. Compounding power every loop.',effect:'+200% multiplier. Everything resets. Bonus formula enhanced.',mult:3.0,keepUp:false,prestigePts:4},
+{id:'r3',name:'Jynxzi Ascension',cost:1000000000,desc:'Transcend mortal cookie limits. Become one with the streaming cosmos.',effect:'+500% multiplier. Universe-level generation unlocked.',mult:6.0,keepUp:false,prestigePts:8},
+];
+
+const ACHIEVEMENTS=[
+{id:'a0', name:'First Click', icon:'👆',req:'Click once', check:g=>g.totalClicks>=1},
+{id:'a1', name:'Click Warrior', icon:'⚔️', req:'100 clicks', check:g=>g.totalClicks>=100},
+{id:'a2', name:'Click God', icon:'👑',req:'10,000 clicks', check:g=>g.totalClicks>=10000},
+{id:'a3', name:'Cookie Monster', icon:'🍪',req:'Earn 1,000 cookies', check:g=>g.totalEarned>=1000},
+{id:'a4', name:'Sub Worthy', icon:'🎖️',req:'10,000 all-time', check:g=>g.totalEarned>=10000},
+{id:'a5', name:'Going Viral', icon:'🔥',req:'1M all-time', check:g=>g.totalEarned>=1000000},
+{id:'a6', name:'Billionaire', icon:'💰',req:'1B all-time', check:g=>g.totalEarned>=1000000000},
+{id:'a7', name:'Cookie God', icon:'🌌',req:'1T all-time', check:g=>g.totalEarned>=1000000000000},
+{id:'a8', name:'First Purchase', icon:'🛒',req:'Buy 1 upgrade', check:g=>g.upgradesBought>=1},
+{id:'a9', name:'Upgrade Addict', icon:'⬆️', req:'Buy 6 upgrades', check:g=>g.upgradesBought>=6},
+{id:'a10',name:'Max Upgraded', icon:'💎',req:'Buy all upgrades', check:g=>g.upgradesBought>=UPGRADES.length},
+{id:'a11',name:'Builder', icon:'🏗️',req:'10 buildings', check:g=>g.totalBuildings>=10},
+{id:'a12',name:'Mini Empire', icon:'🏠',req:'50 buildings', check:g=>g.totalBuildings>=50},
+{id:'a13',name:'Content God', icon:'🌟',req:'100 buildings', check:g=>g.totalBuildings>=100},
+{id:'a14',name:'Mega Empire', icon:'🌍',req:'250 buildings', check:g=>g.totalBuildings>=250},
+{id:'a15',name:'Speed Demon', icon:'⚡',req:'100 CPS', check:g=>g.cps>=100},
+{id:'a16',name:'Legendary Grinder', icon:'💎',req:'1,000 CPS', check:g=>g.cps>=1000},
+{id:'a17',name:'Cookie Machine', icon:'🏭',req:'100,000 CPS', check:g=>g.cps>=100000},
+{id:'a18',name:'Golden Touch', icon:'🌟',req:'Click golden cookie', check:g=>g.goldenClicks>=1},
+{id:'a19',name:'Golden Addict', icon:'🥇',req:'10 golden cookies', check:g=>g.goldenClicks>=10},
+{id:'a20',name:'Rebirth Seeker', icon:'🔄',req:'1 rebirth', check:g=>g.rebirths>=1},
+{id:'a21',name:'Reborn Again', icon:'✨',req:'3 rebirths', check:g=>g.rebirths>=3},
+{id:'a22',name:'Max Rebirth', icon:'🌌',req:'Complete Jynxzi Ascension',check:g=>g.rebirthsDone.includes('r3')},
+{id:'a23',name:'Prestige Legend', icon:'♾️', req:'Earn 10 prestige pts', check:g=>g.prestigePoints>=10},
+{id:'a24',name:'Naruto Fan', icon:'🦊',req:'Discover NARUTO secret',check:g=>g.narutMode},
+{id:'a25',name:'Jutsu Master', icon:'🌀',req:'Buy 3 Naruto upgrades', check:g=>g.narutoUpgrades.length>=3},
+{id:'a26',name:'True Shinobi', icon:'☯️', req:'Buy all Naruto upgrades',check:g=>g.narutoUpgrades.length>=NARUTO_UPGRADES.length},
+{id:'a27',name:'Offline Grinder', icon:'💤',req:'Earn offline cookies', check:g=>g.offlineCookiesEarned>0},
+{id:'a28',name:'Prestige Shop', icon:'🛍️',req:'Buy a prestige upgrade',check:g=>g.prestigeUpgrades.length>=1},
+];
+
+// ============================================================
+// GAME STATE
+// ============================================================
+let G={
+cookies:0,totalEarned:0,totalClicks:0,cps:0,
+buildings:{},upgrades:[],narutoUpgrades:[],
+rebirthsDone:[],rebirths:0,rebirthMultiplier:1,
+upgradesBought:0,totalBuildings:0,
+narutMode:false,playerName:'',achUnlocked:[],
+goldenClicks:0,lastSaveTime:0,
+prestigePoints:0,prestigeUpgrades:[],
+offlineCookiesEarned:0,
+musicEnabled:true,sfxEnabled:true,musicVol:0.4,sfxVol:0.5,
+autoSaveOn:true,enterEnabled:true,
+};
+
+let narutMode=false;
+let gClickMult=1,gAllMult=1;
+let enterHeld=false,enterInterval=null;
+let autoSaveInt=null,gameTickInt=null;
+let musicPlaying=false;
+let audioCtx=null;
+let musicNodes={};
+let sfxEnabled=true;
+let goldenCookieTimeout=null,goldenCookieEl=null,goldenTimerInt=null;
+let goldenSpawnMs=0,goldenDuration=12000;
+let presStartCookies=0;
+let enterEnabled=true;
+
+// ============================================================
+// AUDIO
+// ============================================================
+function initAudio(){
+if(audioCtx) return;
+try{ audioCtx=new(window.AudioContext||window.webkitAudioContext)(); }catch(e){}
+}
+
+function playSFX(type){
+if(!G.sfxEnabled||!audioCtx) return;
+try{
+const o=audioCtx.createOscillator();
+const g=audioCtx.createGain();
+o.connect(g); g.connect(audioCtx.destination);
+const vol=G.sfxVol||0.5;
+if(type==='click'){
+o.type='sine'; o.frequency.setValueAtTime(520,audioCtx.currentTime);
+o.frequency.exponentialRampToValueAtTime(320,audioCtx.currentTime+0.08);
+g.gain.setValueAtTime(vol*0.08,audioCtx.currentTime);
+g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.08);
+o.start(); o.stop(audioCtx.currentTime+0.08);
+} else if(type==='buy'){
+o.type='triangle'; o.frequency.setValueAtTime(440,audioCtx.currentTime);
+o.frequency.exponentialRampToValueAtTime(660,audioCtx.currentTime+0.15);
+g.gain.setValueAtTime(vol*0.12,audioCtx.currentTime);
+g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.2);
+o.start(); o.stop(audioCtx.currentTime+0.2);
+} else if(type==='achievement'){
+[523,659,784,1047].forEach((f,i)=>{
+const o2=audioCtx.createOscillator();const g2=audioCtx.createGain();
+o2.connect(g2);g2.connect(audioCtx.destination);
+o2.type='triangle';o2.frequency.value=f;
+const t=audioCtx.currentTime+i*0.08;
+g2.gain.setValueAtTime(vol*0.1,t);g2.gain.exponentialRampToValueAtTime(0.001,t+0.15);
+o2.start(t);o2.stop(t+0.15);
+});
+return;
+} else if(type==='golden'){
+[440,554,659,880].forEach((f,i)=>{
+const o2=audioCtx.createOscillator();const g2=audioCtx.createGain();
+o2.connect(g2);g2.connect(audioCtx.destination);
+o2.type='sine';o2.frequency.value=f;
+const t=audioCtx.currentTime+i*0.06;
+g2.gain.setValueAtTime(vol*0.12,t);g2.gain.exponentialRampToValueAtTime(0.001,t+0.25);
+o2.start(t);o2.stop(t+0.25);
+});
+return;
+} else if(type==='rebirth'){
+for(let i=0;i<8;i++){
+const o2=audioCtx.createOscillator();const g2=audioCtx.createGain();
+o2.connect(g2);g2.connect(audioCtx.destination);
+o2.type='sawtooth';o2.frequency.value=200+i*60;
+const t=audioCtx.currentTime+i*0.05;
+g2.gain.setValueAtTime(vol*0.08,t);g2.gain.exponentialRampToValueAtTime(0.001,t+0.2);
+o2.start(t);o2.stop(t+0.2);
+}
+return;
+}
+}catch(e){}
+}
+
+function startMusic(){
+if(!audioCtx||musicPlaying) return;
+try{
+stopMusic();
+musicPlaying=true;
+document.getElementById('musicIcon').className='music-icon playing';
+document.getElementById('musicToggleBtn').textContent='⏸';
+document.getElementById('musicToggle').textContent='ON';
+document.getElementById('musicToggle').className='toggle-btn active-setting';
+// Build a looping beat using Web Audio API
+playMusicLoop();
+}catch(e){ musicPlaying=false; }
+}
+
+let musicLoopTimeout=null;
+function playMusicLoop(){
+if(!musicPlaying||!audioCtx) return;
+const vol=G.musicVol||0.4;
+const t=audioCtx.currentTime;
+const bpm=140;
+const beat=60/bpm;
+const bars=4;
+const totalTime=bars*4*beat;
+
+// Bass line
+const bassNotes=[55,55,82,55,73,55,82,55];
+bassNotes.forEach((freq,i)=>{
+const o=audioCtx.createOscillator();const g=audioCtx.createGain();
+o.connect(g);g.connect(audioCtx.destination);
+o.type='sawtooth';o.frequency.value=freq;
+const st=t+i*(beat*0.5);
+g.gain.setValueAtTime(vol*0.07,st);g.gain.exponentialRampToValueAtTime(0.001,st+beat*0.45);
+o.start(st);o.stop(st+beat*0.45);
+});
+
+// Hi-hat pattern
+for(let i=0;i<16;i++){
+const buf=audioCtx.createBuffer(1,audioCtx.sampleRate*0.05,audioCtx.sampleRate);
+const d=buf.getChannelData(0);
+for(let j=0;j<d.length;j++) d[j]=(Math.random()*2-1)*Math.exp(-j/(d.length*0.3));
+const src=audioCtx.createBufferSource();src.buffer=buf;
+const g=audioCtx.createGain();src.connect(g);g.connect(audioCtx.destination);
+const st=t+i*(beat*0.25);
+g.gain.setValueAtTime(vol*0.04,st);
+src.start(st);
+}
+
+// Kick on beats 1 and 3
+[0,2].forEach(b=>{
+const o=audioCtx.createOscillator();const g=audioCtx.createGain();
+o.connect(g);g.connect(audioCtx.destination);
+o.type='sine';
+const st=t+b*2*beat;
+o.frequency.setValueAtTime(150,st);o.frequency.exponentialRampToValueAtTime(50,st+0.1);
+g.gain.setValueAtTime(vol*0.25,st);g.gain.exponentialRampToValueAtTime(0.001,st+0.15);
+o.start(st);o.stop(st+0.15);
+});
+
+// Snare on beats 2 and 4
+[1,3].forEach(b=>{
+const buf=audioCtx.createBuffer(1,audioCtx.sampleRate*0.1,audioCtx.sampleRate);
+const d=buf.getChannelData(0);
+for(let j=0;j<d.length;j++) d[j]=(Math.random()*2-1)*Math.exp(-j/(d.length*0.4));
+const src=audioCtx.createBufferSource();src.buffer=buf;
+const gn=audioCtx.createGain();src.connect(gn);gn.connect(audioCtx.destination);
+const st=t+b*2*beat;
+gn.gain.setValueAtTime(vol*0.12,st);
+src.start(st);
+
+// Snare tone
+const o=audioCtx.createOscillator();const g2=audioCtx.createGain();
+o.connect(g2);g2.connect(audioCtx.destination);
+o.type='triangle';o.frequency.value=200;
+g2.gain.setValueAtTime(vol*0.05,st);g2.gain.exponentialRampToValueAtTime(0.001,st+0.08);
+o.start(st);o.stop(st+0.08);
+});
+
+// Melody line
+const melody=[523,659,784,659,523,440,494,523];
+melody.forEach((freq,i)=>{
+if(i%2!==0) return;
+const o=audioCtx.createOscillator();const g=audioCtx.createGain();
+o.connect(g);g.connect(audioCtx.destination);
+o.type='square';o.frequency.value=freq/2;
+const st=t+i*beat;
+g.gain.setValueAtTime(vol*0.025,st);g.gain.exponentialRampToValueAtTime(0.001,st+beat*0.7);
+o.start(st);o.stop(st+beat*0.7);
+});
+
+musicLoopTimeout=setTimeout(()=>{if(musicPlaying) playMusicLoop();},totalTime*1000-50);
+}
+
+function stopMusic(){
+musicPlaying=false;
+if(musicLoopTimeout){ clearTimeout(musicLoopTimeout); musicLoopTimeout=null; }
+document.getElementById('musicIcon').className='music-icon';
+document.getElementById('musicToggleBtn').textContent='▶';
+document.getElementById('musicToggle').textContent='OFF';
+document.getElementById('musicToggle').className='toggle-btn';
+}
+
+function toggleMusic(){
+initAudio();
+if(musicPlaying){ stopMusic(); G.musicEnabled=false; }
+else{ G.musicEnabled=true; startMusic(); }
+}
+function setMusicVol(v){
+G.musicVol=parseFloat(v);
+document.getElementById('volSlider').value=v;
+document.getElementById('musicVol').value=v;
+}
+function toggleSFX(){
+G.sfxEnabled=!G.sfxEnabled;
+const btn=document.getElementById('sfxToggle');
+btn.textContent=G.sfxEnabled?'ON':'OFF';
+btn.className='toggle-btn'+(G.sfxEnabled?' active-setting':'');
+}
+function setSFXVol(v){ G.sfxVol=parseFloat(v); document.getElementById('sfxVol').value=v; }
+function toggleAutoSave(){
+G.autoSaveOn=!G.autoSaveOn;
+const btn=document.getElementById('autoSaveToggle');
+btn.textContent=G.autoSaveOn?'ON':'OFF';
+btn.className='toggle-btn'+(G.autoSaveOn?' active-setting':'');
+if(G.autoSaveOn){ autoSaveInt=setInterval(saveGame,30000); }
+else{ clearInterval(autoSaveInt); }
+}
+function toggleEnter(){
+enterEnabled=!enterEnabled;
+G.enterEnabled=enterEnabled;
+const btn=document.getElementById('enterToggle');
+btn.textContent=enterEnabled?'ON':'OFF';
+btn.className='toggle-btn'+(enterEnabled?' active-setting':'');
+}
+
+// ============================================================
+// START SCREEN
+// ============================================================
+// Fill face grid with jynxzi emoji
+const fg=document.getElementById('faceGrid');
+for(let i=0;i<24;i++){const s=document.createElement('span');s.textContent='🎮';fg.appendChild(s);}
+
+const nameInp=document.getElementById('playerName');
+nameInp.addEventListener('input',()=>{
+const v=nameInp.value.toUpperCase();
+const bg=document.getElementById('startBgLayer');
+const title=document.getElementById('startTitle');
+bg.className='';
+if(v==='NARUTO'){
+bg.classList.add('naruto-bg');
+title.textContent='🦊 NARUTO\nCOOKIE CLICKER';
+// Remove old kanji
+document.querySelectorAll('.naruto-kanji').forEach(x=>x.remove());
+const k=document.createElement('div');k.className='naruto-kanji';k.textContent='忍';
+k.style.cssText='top:10%;left:5%;';bg.appendChild(k);
+spawnNarutoParticles();
+} else if(v==='RUSS'){
+bg.classList.add('russ-bg');
+title.textContent='💙 RUSS\nCOOKIE CLICKER';
+document.querySelectorAll('.naruto-kanji').forEach(x=>x.remove());
+} else {
+bg.classList.add('jynxzi-bg');
+title.textContent='JYNXZI\nCOOKIE CLICKER';
+document.querySelectorAll('.naruto-kanji').forEach(x=>x.remove());
+}
+});
+
+function spawnNarutoParticles(){
+const colors=['#ff4400','#ff6600','#ff2200','#ff8800','#cc0000'];
+for(let i=0;i<25;i++){
+setTimeout(()=>{
+const p=document.createElement('div');p.className='naruto-particle';
+const x=Math.random()*window.innerWidth;const y=Math.random()*window.innerHeight;
+const tx=(Math.random()-0.5)*200;const ty=(Math.random()-0.5)*200;
+p.style.cssText=`left:${x}px;top:${y}px;background:${colors[Math.floor(Math.random()*colors.length)]};--tx:${tx}px;--ty:${ty}px;width:${4+Math.random()*10}px;height:${4+Math.random()*10}px;`;
+document.getElementById('startScreen').appendChild(p);
+setTimeout(()=>p.remove(),3000);
+},i*40);
+}
+}
+
+document.getElementById('startBtn').addEventListener('click',startGame);
+nameInp.addEventListener('keydown',e=>{if(e.key==='Enter')startGame();});
+
+function startGame(){
+initAudio();
+const name=nameInp.value.trim().toUpperCase()||'PLAYER';
+narutMode=name==='NARUTO';
+G.playerName=name;
+G.narutMode=narutMode;
+
+const saveKey='jynxziClicker_'+name;
+const save=localStorage.getItem(saveKey);
+if(save){
+try{
+const sv=JSON.parse(save);
+Object.assign(G,sv);
+G.narutMode=narutMode;G.playerName=name;
+// Offline progress
+if(G.lastSaveTime&&G.autoSaveOn!==false){
+const offlineSec=Math.min((Date.now()-G.lastSaveTime)/1000,3600*8);
+if(offlineSec>10){
+const offMult=calcPrestigeOfflineMult();
+const earned=offlineSec*G.cps*offMult;
+if(earned>0){
+G.cookies+=earned;G.totalEarned+=earned;G.offlineCookiesEarned+=earned;
+setTimeout(()=>showToast('💤 Offline Earnings!',`+${fmt(earned)} cookies while away`,'t-green'),800);
+}
+}
+}
+}catch(e){}
+}
+
+const sc=document.getElementById('startScreen');
+sc.style.opacity='0';
+setTimeout(()=>{sc.style.display='none';initGame();},800);
+}
+
+function calcPrestigeOfflineMult(){
+return G.prestigeUpgrades.includes('p4')?3:1;
+}
+
+// ============================================================
+// GAME INIT
+// ============================================================
+function initGame(){
+const gs=document.getElementById('gameScreen');gs.classList.add('active');
+// Set bg
+const overlay=document.getElementById('gameBgOverlay');
+overlay.className=narutMode?'naruto-game-bg':'jynxzi-game-bg';
+
+if(G.narutMode){
+const tb=document.getElementById('tabBar');
+if(!document.getElementById('narutoTabBtn')){
+const nb=document.createElement('button');nb.className='tab-btn naruto-tab';nb.id='narutoTabBtn';
+nb.innerHTML='🦊 Naruto';nb.onclick=function(){switchTab('naruto',this);};
+tb.appendChild(nb);
+}
+document.getElementById('multiBadge').style.display='block';
+}
+
+document.getElementById('musicControl').style.display='flex';
+document.getElementById('settingNameDisplay').textContent=G.playerName;
+
+recalcMults();
+renderBuildings();renderUpgrades();renderNaruto();renderPrestige();
+renderRebirths();renderAchievements();updateUI();
+
+if(gameTickInt) clearInterval(gameTickInt);
+gameTickInt=setInterval(gameTick,100);
+if(autoSaveInt) clearInterval(autoSaveInt);
+if(G.autoSaveOn!==false) autoSaveInt=setInterval(saveGame,30000);
+
+document.addEventListener('keydown',onKeyDown);
+document.addEventListener('keyup',onKeyUp);
+
+// Start music if enabled
+if(G.musicEnabled!==false && audioCtx){ startMusic(); }
+
+// Apply saved settings
+if(G.sfxEnabled===false) toggleSFX();
+if(G.autoSaveOn===false) toggleAutoSave();
+if(G.enterEnabled===false) toggleEnter();
+if(G.musicVol) setMusicVol(G.musicVol);
+if(G.sfxVol) setSFXVol(G.sfxVol);
+
+// Start golden cookie cycle
+scheduleGoldenCookie();
+}
+
+function gameTick(){
+const cps=calcCPS();
+const earned=cps/10;
+G.cookies+=earned;G.totalEarned+=earned;
+updateUI();checkAchievements();
+}
+
+function recalcMults(){
+gClickMult=1;gAllMult=1;
+[...UPGRADES,...NARUTO_UPGRADES].forEach(u=>{
+if(G.upgrades.includes(u.id)||G.narutoUpgrades.includes(u.id)){
+if(u.type==='click') gClickMult*=u.mult;
+if(u.type==='all') gAllMult*=u.mult;
+}
+});
+// Prestige upgrades
+if(G.prestigeUpgrades.includes('p3')) gAllMult*=2;
+// Per-rebirth bonus from prestige
+if(G.prestigeUpgrades.includes('p0')) gAllMult*=(1+G.rebirths*0.25);
+}
+
+function calcCPS(){
+let cps=0;
+BUILDINGS.forEach(b=>{const owned=G.buildings[b.id]||0;cps+=owned*b.baseCps;});
+cps*=G.rebirthMultiplier*gAllMult;
+if(G.narutMode) cps*=3;
+G.cps=cps;return cps;
+}
+
+function calcClickPower(){
+let cp=1*G.rebirthMultiplier*gClickMult;
+if(G.narutMode) cp*=3;
+return cp;
+}
+
+// ============================================================
+// CLICKING
+// ============================================================
+function clickCookie(e){
+initAudio();
+const cp=calcClickPower();
+G.cookies+=cp;G.totalEarned+=cp;G.totalClicks++;
+playSFX('click');
+
+const cookie=document.getElementById('bigCookie');
+cookie.classList.remove('clicked');void cookie.offsetWidth;cookie.classList.add('clicked');
+setTimeout(()=>cookie.classList.remove('clicked'),150);
+
+const area=document.getElementById('clickArea');
+const rect=area.getBoundingClientRect();
+const ripple=document.createElement('div');ripple.className='click-ripple';
+const cx=e?e.clientX-rect.left:rect.width/2;
+const cy=e?e.clientY-rect.top:rect.height/2;
+ripple.style.left=cx+'px';ripple.style.top=cy+'px';
+area.appendChild(ripple);setTimeout(()=>ripple.remove(),600);
+
+const ft=document.createElement('div');ft.className='float-text';
+ft.textContent='+'+fmt(cp);
+ft.style.left=(cx+Math.random()*40-20)+'px';ft.style.top=(cy-20)+'px';
+area.appendChild(ft);setTimeout(()=>ft.remove(),1000);
+
+updateUI();checkAchievements();
+}
+
+function onKeyDown(e){
+if(e.key==='Enter'&&!e.repeat&&!enterHeld&&enterEnabled&&document.activeElement.tagName!=='INPUT'){
+enterHeld=true;clickCookie(null);
+enterInterval=setInterval(()=>clickCookie(null),50);
+}
+}
+function onKeyUp(e){
+if(e.key==='Enter'){ enterHeld=false; if(enterInterval){clearInterval(enterInterval);enterInterval=null;} }
+}
+
+// ============================================================
+// GOLDEN COOKIE
+// ============================================================
+function scheduleGoldenCookie(){
+const minMs=20000,maxMs=50000;
+const bonusMult=G.prestigeUpgrades.includes('p2')?0.5:1;
+const delay=minMs*bonusMult+Math.random()*(maxMs-minMs)*bonusMult;
+goldenCookieTimeout=setTimeout(spawnGoldenCookie,delay);
+}
+
+function spawnGoldenCookie(){
+if(goldenCookieEl) goldenCookieEl.remove();
+playSFX('golden');
+const area=document.getElementById('clickArea');
+const rect=area.getBoundingClientRect();
+const el=document.createElement('div');
+el.className='golden-cookie';el.textContent='🌟';
+el.title='Golden Cookie! Click for a bonus!';
+
+const maxX=rect.width-80,maxY=rect.height-100;
+el.style.left=(20+Math.random()*Math.max(0,maxX-40))+'px';
+el.style.top=(20+Math.random()*Math.max(0,maxY-40))+'px';
+
+// Timer bar
+const timerWrap=document.createElement('div');timerWrap.className='golden-cookie-timer';
+const timerFill=document.createElement('div');timerFill.className='golden-cookie-timer-fill';
+timerFill.style.width='100%';timerWrap.appendChild(timerFill);el.appendChild(timerWrap);
+area.appendChild(el);goldenCookieEl=el;
+
+// Notify
+const notif=document.createElement('div');notif.className='golden-notif';notif.textContent='🌟 A Golden Cookie appeared!';
+document.body.appendChild(notif);setTimeout(()=>notif.remove(),3000);
+
+el.addEventListener('click',()=>{
+G.goldenClicks++;
+const bonus=Math.max(G.cps*30,G.cookies*0.1,1000);
+G.cookies+=bonus;G.totalEarned+=bonus;
+playSFX('achievement');
+showToast('🌟 Golden Cookie!','+'+ fmt(bonus)+' cookies!','t-golden');
+
+// Sparkle burst
+for(let i=0;i<12;i++){
+const sp=document.createElement('div');
+sp.style.cssText=`position:absolute;font-size:20px;left:${el.offsetLeft}px;top:${el.offsetTop}px;pointer-events:none;z-index:600;animation:floatUp 1s ease-out forwards;`;
+sp.textContent='✨';sp.style.animationDelay=(i*0.05)+'s';
+sp.style.left=(el.offsetLeft+Math.random()*60-30)+'px';
+sp.style.top=(el.offsetTop+Math.random()*60-30)+'px';
+area.appendChild(sp);setTimeout(()=>sp.remove(),1200+i*50);
+}
+el.remove();goldenCookieEl=null;
+if(goldenTimerInt){clearInterval(goldenTimerInt);goldenTimerInt=null;}
+updateUI();checkAchievements();
+scheduleGoldenCookie();
+});
+
+// Countdown
+let elapsed=0;
+goldenTimerInt=setInterval(()=>{
+elapsed+=100;const pct=Math.max(0,100-(elapsed/goldenDuration*100));
+timerFill.style.width=pct+'%';
+if(elapsed>=goldenDuration){
+clearInterval(goldenTimerInt);goldenTimerInt=null;
+el.remove();goldenCookieEl=null;scheduleGoldenCookie();
+}
+},100);
+}
+
+// ============================================================
+// UI
+// ============================================================
+function fmt(n){
+if(n>=1e15) return (n/1e15).toFixed(2)+'Qa';
+if(n>=1e12) return (n/1e12).toFixed(2)+'T';
+if(n>=1e9) return (n/1e9).toFixed(2)+'B';
+if(n>=1e6) return (n/1e6).toFixed(2)+'M';
+if(n>=1e3) return (n/1e3).toFixed(1)+'K';
+return Math.floor(n).toString();
+}
+
+function getBuildingCost(b,owned){return Math.floor(b.baseCost*Math.pow(1.15,owned||0));}
+
+function updateUI(){
+const c=Math.floor(G.cookies);const cps=calcCPS();
+document.getElementById('cookieDisplay').textContent=fmt(c);
+document.getElementById('cpsDisplay').textContent=fmt(cps);
+document.getElementById('allTimeDisplay').textContent=fmt(G.totalEarned);
+document.getElementById('rebirthDisplay').textContent=G.rebirths;
+document.getElementById('prestigeDisplay').textContent=G.prestigePoints+'✨';
+document.getElementById('mainCookieNum').textContent=fmt(c);
+document.getElementById('mainCPS').textContent=fmt(cps)+' / second';
+document.getElementById('rebirthBonusDisplay').textContent=G.rebirthMultiplier.toFixed(1)+'x';
+document.getElementById('prestigePointsDisplay').textContent=G.prestigePoints+' PP';
+document.getElementById('settingNameDisplay').textContent=G.playerName;
+document.getElementById('settingStats').textContent=`${fmt(G.totalClicks)} clicks | ${fmt(G.totalEarned)} earned | ${G.rebirths} rebirths`;
+updateBuildingCards();updateUpgradeCards();updateNarutoCards();updatePrestigeCards();
+}
+
+function updateBuildingCards(){
+BUILDINGS.forEach(b=>{
+const card=document.getElementById('bcard-'+b.id);if(!card) return;
+const owned=G.buildings[b.id]||0;const cost=getBuildingCost(b,owned);
+const can=G.cookies>=cost;
+card.querySelector('.building-count').textContent=owned;
+card.querySelector('.building-cost').innerHTML=`<span style="color:${can?'var(--gold)':'var(--muted)'}">💰 ${fmt(cost)}</span>`;
+const fill=card.querySelector('.progress-bar-fill');
+if(fill) fill.style.width=Math.min(100,(G.cookies/cost)*100)+'%';
+card.classList.toggle('can-afford',can);
+});
+}
+function updateUpgradeCards(){
+UPGRADES.forEach(u=>{
+const card=document.getElementById('ucard-'+u.id);if(!card) return;
+const purchased=G.upgrades.includes(u.id);
+const can=!purchased&&G.cookies>=u.cost;
+card.classList.toggle('can-afford',can);
+const fill=card.querySelector('.upgrade-progress-fill');
+if(fill&&!purchased) fill.style.width=Math.min(100,(G.cookies/u.cost)*100)+'%';
+});
+}
+function updateNarutoCards(){
+NARUTO_UPGRADES.forEach(u=>{
+const card=document.getElementById('ncard-'+u.id);if(!card) return;
+const purchased=G.narutoUpgrades.includes(u.id);
+const can=!purchased&&G.cookies>=u.cost;
+card.classList.toggle('can-afford',can);
+const fill=card.querySelector('.upgrade-progress-fill');
+if(fill&&!purchased) fill.style.width=Math.min(100,(G.cookies/u.cost)*100)+'%';
+});
+}
+function updatePrestigeCards(){
+PRESTIGE_UPGRADES.forEach(u=>{
+const card=document.getElementById('pcard-'+u.id);if(!card) return;
+const owned=G.prestigeUpgrades.includes(u.id);
+const can=!owned&&G.prestigePoints>=u.cost;
+card.classList.toggle('can-afford',can);
+const btn=card.querySelector('.prestige-btn');
+if(btn) btn.disabled=!can||owned;
+});
+}
+
+// ============================================================
+// RENDER FUNCTIONS
+// ============================================================
+function renderBuildings(){
+const list=document.getElementById('buildingsList');list.innerHTML='';
+BUILDINGS.forEach(b=>{
+const owned=G.buildings[b.id]||0;const cost=getBuildingCost(b,owned);
+const can=G.cookies>=cost;
+const d=document.createElement('div');d.className='building-card'+(can?' can-afford':'');d.id='bcard-'+b.id;
+d.innerHTML=`
+<div class="building-header">
+<div class="building-info">
+<div class="building-name"><span class="building-icon">${b.icon}</span>${b.name}</div>
+<div class="building-desc">${b.desc}</div>
+<div><span class="building-cost"><span style="color:${can?'var(--gold)':'var(--muted)'}">💰 ${fmt(cost)}</span></span><span class="building-cps">+${b.baseCps}/s each</span></div>
+</div>
+<div class="building-count">${owned}</div>
+</div>
+<div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${Math.min(100,(G.cookies/cost)*100)}%"></div></div>
+`;
+d.addEventListener('click',()=>buyBuilding(b));
+list.appendChild(d);
+});
+}
+
+function buyBuilding(b){
+const owned=G.buildings[b.id]||0;const cost=getBuildingCost(b,owned);
+if(G.cookies<cost){showToast('Not Enough Cookies','Need '+fmt(cost),'');return;}
+G.cookies-=cost;G.buildings[b.id]=(owned||0)+1;G.totalBuildings++;
+playSFX('buy');updateUI();
+showToast('Building Purchased!',b.icon+' '+b.name+' #'+(owned+1),'t-green');
+checkAchievements();
+}
+
+function renderUpgrades(){
+const list=document.getElementById('upgradesList');list.innerHTML='';
+UPGRADES.forEach(u=>{
+const purchased=G.upgrades.includes(u.id);
+const can=!purchased&&G.cookies>=u.cost;
+const d=document.createElement('div');d.className='upgrade-card'+(purchased?' purchased':can?' can-afford':'');d.id='ucard-'+u.id;
+d.innerHTML=`
+<div class="upgrade-name">${u.icon} ${u.name} ${purchased?'✓':''}</div>
+<div class="upgrade-desc">${u.desc}</div>
+<div class="upgrade-cost">${purchased?'✅ PURCHASED':'💰 '+fmt(u.cost)}</div>
+<div class="upgrade-effect">${u.effect}</div>
+${!purchased?`<div class="upgrade-progress-wrap"><div class="upgrade-progress-fill" style="width:${Math.min(100,(G.cookies/u.cost)*100)}%"></div></div>`:''}
+`;
+if(!purchased) d.addEventListener('click',()=>buyUpgrade(u));
+list.appendChild(d);
+});
+}
+
+function buyUpgrade(u){
+if(G.upgrades.includes(u.id)) return;
+if(G.cookies<u.cost){showToast('Not Enough Cookies','Need '+fmt(u.cost),'');return;}
+G.cookies-=u.cost;G.upgrades.push(u.id);G.upgradesBought++;
+playSFX('buy');recalcMults();renderUpgrades();updateUI();
+showToast('Upgrade Unlocked! 🚀',u.icon+' '+u.name+': '+u.effect,'t-gold');
+checkAchievements();
+}
+
+function renderNaruto(){
+const list=document.getElementById('narutoList');list.innerHTML='';
+NARUTO_UPGRADES.forEach((u,idx)=>{
+const purchased=G.narutoUpgrades.includes(u.id);
+const can=!purchased&&G.cookies>=u.cost;
+// Lock upgrades after first if previous not purchased
+const locked=idx>0&&!G.narutoUpgrades.includes(NARUTO_UPGRADES[idx-1].id)&&!purchased;
+const d=document.createElement('div');
+d.className='upgrade-card naruto-card'+(purchased?' purchased':locked?' locked-upgrade':can?' can-afford':'');
+d.id='ncard-'+u.id;
+d.setAttribute('draggable','false');
+d.style.userSelect='none';
+d.innerHTML=`
+<div class="upgrade-name" style="color:${locked?'var(--muted)':'#ff6600'}">${locked?'🔒':u.icon} ${locked?'???':u.name}</div>
+<div class="upgrade-desc">${locked?'Buy the previous upgrade to unlock this one.':u.desc}</div>
+<div class="upgrade-cost" style="color:#ff4400">${purchased?'✅ ACTIVATED':locked?'🔒 LOCKED':'🔥 '+fmt(u.cost)}</div>
+<div class="upgrade-effect" style="color:#ff6600">${locked?'':u.effect}</div>
+${!purchased&&!locked?`<div class="upgrade-progress-wrap"><div class="upgrade-progress-fill" style="width:${Math.min(100,(G.cookies/u.cost)*100)}%;background:linear-gradient(90deg,#ff4400,#ff8800)"></div></div>`:''}
+`;
+if(!purchased&&!locked) d.addEventListener('click',()=>buyNarutoUpgrade(u));
+list.appendChild(d);
+});
+}
+
+function buyNarutoUpgrade(u){
+if(G.narutoUpgrades.includes(u.id)) return;
+if(G.cookies<u.cost){showToast('Not Enough Chakra 🦊','Need '+fmt(u.cost),'t-red');return;}
+G.cookies-=u.cost;G.narutoUpgrades.push(u.id);G.upgradesBought++;
+playSFX('buy');recalcMults();renderNaruto();updateUI();
+showToast('🦊 Jutsu Activated!',u.icon+' '+u.name+': '+u.effect,'t-red');
+checkAchievements();
+}
+
+function renderPrestige(){
+const list=document.getElementById('prestigeList');list.innerHTML='';
+PRESTIGE_UPGRADES.forEach(u=>{
+const owned=G.prestigeUpgrades.includes(u.id);
+const can=!owned&&G.prestigePoints>=u.cost;
+const d=document.createElement('div');d.className='prestige-card'+(owned?' purchased':'');d.id='pcard-'+u.id;
+d.innerHTML=`
+<div class="prestige-header">
+<div class="prestige-name">${u.icon} ${u.name}</div>
+<div class="prestige-owned">${owned?'✅ OWNED':u.cost+' PP'}</div>
+</div>
+<div class="prestige-desc">${u.desc}</div>
+<div class="prestige-effect">${u.effect}</div>
+<button class="prestige-btn" onclick="buyPrestige('${u.id}')" ${!can||owned?'disabled':''}>${owned?'PURCHASED':'BUY — '+u.cost+' PP'}</button>
+`;
+list.appendChild(d);
+});
+}
+
+function buyPrestige(uid){
+const u=PRESTIGE_UPGRADES.find(x=>x.id===uid);if(!u) return;
+if(G.prestigeUpgrades.includes(u.id)||G.prestigePoints<u.cost){showToast('Not Enough Prestige Points','Need '+u.cost+' PP','');return;}
+G.prestigePoints-=u.cost;G.prestigeUpgrades.push(u.id);
+playSFX('achievement');recalcMults();renderPrestige();updateUI();
+showToast('✨ Prestige Upgrade!',u.icon+' '+u.name,'t-gold');
+checkAchievements();
+}
+
+function renderRebirths(){
+const list=document.getElementById('rebirthList');list.innerHTML='';
+REBIRTHS.forEach(r=>{
+const times=G.rebirthsDone.filter(x=>x===r.id).length;
+const d=document.createElement('div');d.className='rebirth-card';
+d.innerHTML=`
+<div class="rebirth-header"><div class="rebirth-name">${r.name}</div><div class="rebirth-count">Done: ${times}x</div></div>
+<div class="rebirth-desc">${r.desc}</div>
+<div class="rebirth-effect">${r.effect}</div>
+<div class="rebirth-cost">Cost: 💰 ${fmt(r.cost)} | Reward: +${r.prestigePts} Prestige Points</div>
+<button class="rebirth-btn" onclick="doRebirth('${r.id}')" ${G.cookies<r.cost?'disabled':''}>REBIRTH →</button>
+`;
+list.appendChild(d);
+});
+}
+
+function doRebirth(rid){
+const r=REBIRTHS.find(x=>x.id===rid);
+if(!r||G.cookies<r.cost) return;
+if(!confirm(`Rebirth as "${r.name}"? Progress will reset!`)) return;
+G.cookies-=r.cost;G.rebirthsDone.push(rid);G.rebirths++;
+G.rebirthMultiplier*=r.mult;
+G.prestigePoints+=r.prestigePts;
+G.buildings={};G.totalBuildings=0;
+if(!r.keepUp){G.upgrades=[];G.narutoUpgrades=[];G.upgradesBought=0;recalcMults();}
+// Prestige start cookies
+if(G.prestigeUpgrades.includes('p1')) G.cookies=100;
+const fl=document.createElement('div');fl.className='rebirth-flash';document.body.appendChild(fl);setTimeout(()=>fl.remove(),1000);
+playSFX('rebirth');
+showToast('🔄 REBIRTH!',r.name+' — x'+G.rebirthMultiplier.toFixed(1)+' | +'+r.prestigePts+' PP','t-gold');
+renderBuildings();renderUpgrades();renderNaruto();renderPrestige();renderRebirths();
+recalcMults();updateUI();checkAchievements();
+}
+
+function renderAchievements(){
+const list=document.getElementById('achievementsList');list.innerHTML='';
+document.getElementById('achCount').textContent=G.achUnlocked.length+'/'+ACHIEVEMENTS.length+' unlocked';
+ACHIEVEMENTS.forEach(a=>{
+const u=G.achUnlocked.includes(a.id);
+const d=document.createElement('div');d.className='achievement-card'+(u?' unlocked':'');
+d.innerHTML=`<div class="achievement-icon">${u?a.icon:'🔒'}</div><div class="achievement-name">${u?a.name:'???'}</div><div class="achievement-desc">${u?a.desc:'Keep playing to unlock...'}</div><div class="achievement-req">${a.req}</div>`;
+list.appendChild(d);
+});
+}
+
+function checkAchievements(){
+let nu=false;
+ACHIEVEMENTS.forEach(a=>{
+if(!G.achUnlocked.includes(a.id)&&a.check(G)){
+G.achUnlocked.push(a.id);nu=true;
+playSFX('achievement');
+showToast('🏆 Achievement Unlocked!',a.icon+' '+a.name,'t-gold');
+}
+});
+if(nu) renderAchievements();
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(name,btn){
+document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+const tab=document.getElementById('tab-'+name);if(tab) tab.classList.add('active');
+if(btn) btn.classList.add('active');
+if(name==='rebirths') renderRebirths();
+if(name==='prestige') renderPrestige();
+}
+
+// ============================================================
+// TOASTS
+// ============================================================
+function showToast(title,body,type){
+const ct=document.getElementById('toastContainer');
+const t=document.createElement('div');
+t.className='toast '+(type||'');
+t.innerHTML=`<div class="toast-title">${title}</div><div class="toast-body">${body}</div>`;
+ct.appendChild(t);
+setTimeout(()=>{t.classList.add('hiding');setTimeout(()=>t.remove(),300);},2800);
+}
+
+// ============================================================
+// SAVE / LOAD / SETTINGS
+// ============================================================
+function saveGame(){
+G.lastSaveTime=Date.now();G.musicEnabled=musicPlaying;
+localStorage.setItem('jynxziClicker_'+G.playerName,JSON.stringify(G));
+showToast('💾 Saved!','Progress saved successfully.','t-green');
+}
+
+function resetProgress(){
+if(!confirm('Are you SURE? This will permanently delete ALL your progress. This cannot be undone!')) return;
+if(!confirm('Last chance! Permanently delete everything?')) return;
+localStorage.removeItem('jynxziClicker_'+G.playerName);
+location.reload();
+}
+
+function exportSave(){
+const data=btoa(JSON.stringify(G));
+navigator.clipboard.writeText(data).then(()=>showToast('📤 Exported!','Save data copied to clipboard.','t-green')).catch(()=>prompt('Copy this:',data));
+}
+
+function importSave(){
+const raw=prompt('Paste your save data here:');
+if(!raw) return;
+try{
+const sv=JSON.parse(atob(raw));Object.assign(G,sv);
+recalcMults();renderBuildings();renderUpgrades();renderNaruto();renderPrestige();renderRebirths();renderAchievements();updateUI();
+showToast('📥 Imported!','Save data loaded successfully.','t-green');
+}catch(e){ showToast('❌ Import Failed','Invalid save data.','t-red'); }
+}
+
+function goToMenu(){
+if(!confirm('Return to menu? Game will be saved.')) return;
+saveGame();stopMusic();
+clearInterval(gameTickInt);clearInterval(autoSaveInt);
+document.removeEventListener('keydown',onKeyDown);document.removeEventListener('keyup',onKeyUp);
+if(enterInterval) clearInterval(enterInterval);
+if(goldenCookieTimeout) clearTimeout(goldenCookieTimeout);
+if(goldenTimerInt) clearInterval(goldenTimerInt);
+if(goldenCookieEl){goldenCookieEl.remove();goldenCookieEl=null;}
+const gs=document.getElementById('gameScreen');gs.classList.remove('active');gs.style.display='none';
+document.getElementById('musicControl').style.display='none';
+const sc=document.getElementById('startScreen');sc.style.display='flex';sc.style.opacity='1';
+}
+
+// ============================================================
+// START SCREEN INIT
+// ============================================================
+document.getElementById('startCookie').addEventListener('click',()=>{
+initAudio();playSFX('click');
+const c=document.getElementById('startCookie');
+c.style.animation='none';void c.offsetWidth;c.style.animation='cookieSpin 0.4s linear';
+setTimeout(()=>c.style.animation='cookieSpin 8s linear infinite',400);
+});
+setTimeout(()=>{
+const ss=document.querySelector('.start-subtitle');if(ss)ss.style.opacity='1';
+const ns=document.querySelector('.name-section');if(ns)ns.style.opacity='1';
+},200);
+</script>
+</body>
+</html>
+
